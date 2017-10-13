@@ -22,7 +22,8 @@ for res in t.topology.residues:
  (8, 'oxygen', 'O', 15.99943, 0.152), 
  (15, 'phosphorus', 'P', 30.9737622, 0.18), 
  (1, 'hydrogen', 'H', 1.007947, 0.12)]
- 
+
+
 for i in t.topology.atoms:
      if(i.name == 'P1'):
             print t.xyz[0,i.index]
