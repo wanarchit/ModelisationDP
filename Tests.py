@@ -1,33 +1,32 @@
-import mdtraj as md
-
-Data_pathP = 'D:\Cours\Master 2\Modelisation Bioinformatique\p3_p4_p5_p8'
-Data_pathD = 'C:\Users\Asus\Documents\Master 2 GPhy\Semestre 1\Modelisation'
-t = md.load(Data_pathP+'\md_200ns_OK.xtc', top=Data_pathP+'\start.pdb')
-#print(t)
-
-'''
-residu = []
-for res in t.topology.residues:
-    if (str(res)[0:3] == 'DOP'):            // changer par res.name == 'DOP'
-        residu.append(res)
-        
->>> listElement = []
->>> for i in t.topology.atoms:
-...     if i.element not in listElement:
-...             listElement.append(i.element)
-...
->>> listElement
-[(6, 'carbon', 'C', 12.01078, 0.17), 
- (7, 'nitrogen', 'N', 14.00672, 0.155),
- (8, 'oxygen', 'O', 15.99943, 0.152), 
- (15, 'phosphorus', 'P', 30.9737622, 0.18), 
- (1, 'hydrogen', 'H', 1.007947, 0.12)]
+from Tkinter import Tk
+from Tkinter import *
+from tkFileDialog import askopenfilename
+import sys
 
 
-for i in t.topology.atoms:
-     if(i.name == 'P1'):
-            print t.xyz[0,i.index]
+def loadData():
+    val = raw_input("You want load a PDB file ? (Y/N) :")
+    if val == "Y":
+        select_file('pdb')
+    val = raw_input("You want load a XTC file ? (Y/N) :")
+    if val == "Y":
+        select_file('xtc')
+def select_file(format):
+    root = Tk()
+    filepath = askopenfilename(title="Select the "+format.upper()+" file",
+                               filetypes=[(
+        format.upper()+' files','.'+format.lower())])
+    root.destroy()
+    print filepath
 
-'''
 
-print("tototest2")
+
+
+
+print("Welcome in the program !\n")
+print("  - First, you will have to choose your data (PDB and XTC files")
+print("  - Next, you will have to choose a reference atom")
+print("  - Finally, you will have to choose a slice of distance to build the clusters\n")
+print("Press a key to continue")
+raw_input(" >> ")
+

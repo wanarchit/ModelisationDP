@@ -1,4 +1,6 @@
 import mdtraj as md
+import os
+import argparse
 from math import sqrt
 
 def selectRefAtom(atomList):
@@ -16,7 +18,7 @@ def selectRefAtom(atomList):
 def selectSlice():
     check = False
     while not check:
-        print "Select a range of time to do clusters of distances (min = 0.01):"
+        print "Select a range of distances to do the clusters (min = 0.01):"
         slice = raw_input(" >>  ")
         if slice >= 0.01:
             check = True
@@ -81,9 +83,6 @@ def minMaxDistances(distances, residuesList):
     maximalValues = []
     for timeI in distances.keys():
         for residu in residuesList:
-            print timeI
-            print residu
-            print distances[timeI][residu]
             minimalValues.append(min(distances[timeI][residu]))
             maximalValues.append(max(distances[timeI][residu]))
     minValue = min(minimalValues)
@@ -101,7 +100,7 @@ def distanceClusters(slice,distances, residuesList):
         # 1.5[...
         cluster = 0
         while cluster <= round(max,2):
-            clusters[timeI][cluster] = 0
+            clusters[timeI][round(cluster,2)] = 0
             cluster += slice
         for residu in residuesList:
             for value in distances[timeI][residu]:
@@ -123,10 +122,32 @@ def exportClustersCSV(data_path,clusters):
 
 
 
+
+if __name__=="__main__":
+    parser=argparse.ArgumentParser(description='This program allows '
+                                               'calculating and represent the '
+                                               'distribution of distances '
+                                               'traveled by molecules '
+                                               'through a system')
+    parser.add_argument('pdb', type=str, help='PDB input file')
+    parser.add_argument('xtc', type=str, help='XTC input file')
+    args=parser.parse_args()
+
+    workdir = os.getcwd()
+    maindir = os.path.dirname(__file__)
+    print "workdlir = "+workdir
+    print "maindir = "+maindir
+
+    pdbfile = args.pdb
+    xtcfile = args.xtc
+    print "pdbfile = "+pdbfile
+    print "xtcfile = "+xtcfile
+
 # Path Paul :
-data_path= 'D:\Cours\Master 2\Modelisation Bioinformatique\p3_p4_p5_p8'
+#data_path= 'D:\Cours\Master 2\Modelisation Bioinformatique\p3_p4_p5_p8'
 # Path Delphine :
 # data_path = 'C:\Users\Asus\Documents\Master 2 GPhy\Semestre 1\Modelisation'
+'''
 print("Load data in progress ...")
 trajectory = md.load(data_path+'\md_200ns_OK.xtc',
                      top=data_path+'\start.pdb')
@@ -141,3 +162,4 @@ distances = calculateDistances(time, trajectory, residueList, refAtom)
 slice = 0.1
 clusters = distanceClusters(slice, distances, residueList)
 exportClustersCSV(data_path,clusters)
+'''
