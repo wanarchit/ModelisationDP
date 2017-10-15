@@ -330,7 +330,7 @@ def export_clusters_csv(data_path, cluster_list):
         for cluster in sorted(cluster_list[cluster_list.keys()[0]]):
             csv_file.write(str(time_i) + ';' + str(cluster) + ';' + str(
                 cluster_list[time_i][cluster]) + '\n')
-        csv_file.close()
+    csv_file.close()
     print("Export CSV file: ok")
     return csv_file_name
 
