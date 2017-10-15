@@ -24,6 +24,10 @@ plotDist <- plotDist + geom_point()
 plotDist <- plotDist + geom_smooth(fill = NA, span = 0.1)
 # Deleting of backgroung grey color and the color around the trand line
 plotDist <- plotDist + theme_bw()
+# Adding legend on the plot
+plotDist <- plotDist + ggtitle("Distances traveled by reference atoms according to the range of time")
+plotDist <- plotDist + xlab("Distance (A)")
+plotDist <- plotDist + ylab("Effective (distance, time)")
 
 # Saving of output (plot) in PNG format
 png(file = outputname, width = 800, height = 700)
