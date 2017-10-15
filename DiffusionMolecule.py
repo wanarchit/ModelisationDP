@@ -1,12 +1,27 @@
 import mdtraj as md
 import os
+import sys
 import argparse
 from math import sqrt
+from time import localtime
+from subprocess import call
+
+def checkArgs(pdb,xtc,rpath):
+    if not(os.path.exists(pdb)):
+        print("The selected PDB file does not exist")
+    if not(os.path.exists(xtc)):
+        print("The selected XTC file does not exist")
+    if not(os.path.exists(rpath)):
+        print("Thr selected Rscript PATH does not exist (check the double "
+              "backslash '\\\\')")
+    if not(os.path.exists(pdb)) or not(os.path.exists(xtc)) or not(os.path.exists(rpath)):
+        sys.exit()
+    return(pdb,xtc,rpath)
 
 def selectRefAtom(atomList):
     check = False
     while not check:
-        print "Select a reference atom :"
+        print "Select a reference atom (for the test we used P1):"
         atom = raw_input(" >>  ")
         if atom in atomList:
             check = True
@@ -15,16 +30,51 @@ def selectRefAtom(atomList):
                   "to select another atom")
     return atom
 
+def selectTimes():
+    time =[]
+    print("\nYou have to select a list of time ranges will be used for "
+          "calculs")
+    print("By default, the time ranges selected are : 1, 5, 10, 20, 30, 50, "
+          "70, 100 and 200")
+    while time == []:
+        print("Do you want keep these values or change them to choose your own "
+              "values ? (Keep/Change)")
+        choice = raw_input(" >>  ")
+        if choice.lower() == "k" or choice.lower() == "keep":
+            time = [1, 5, 10, 20, 30, 50, 70, 100, 200]
+        elif choice.lower() == "c" or choice.lower() == "change":
+            check = False
+            while not check:
+                print("\nEnter all the values (integers) you want at once, "
+                      "separeted by a space (ex: '1 2 3 10 50')")
+                values = raw_input(" >>  ")
+                try:
+                    time = sorted(list(set([int(v) for v in values.split(' '
+                                                                         '')])))
+                    check = True
+                except:
+                   print("\nYou have to select only integers")
+        else:
+            print("Invalide choice, you have to enter 'keep' or 'change'")
+    print time
+    return time
+
 def selectSlice():
     check = False
     while not check:
-        print "Select a range of distances to do the clusters (min = 0.01):"
+        print "Select a range of distances to do the clusters (min = 0.01, " \
+              "max = 10), for the tests we used 0.1:"
         slice = raw_input(" >>  ")
-        if slice >= 0.01:
-            check = True
-        else:
-            print("The selected value is too small, choose another value")
-    return slice
+        try:
+            if 0.01 <= float(slice) <= 10:
+                check = True
+            else:
+                error = "small" if float(slice) < 0.01 else "large"
+                print("The selected value is too "+error+", choose another "
+                                                         "value\n")
+        except:
+            print("You have to select a value, not a character\n")
+    return float(slice)
 
 def buildAtomList(trajectory):
     print("Building atom list in progress ...")
@@ -58,6 +108,7 @@ def calculateDistances(time, trajectory, residueList, refAtom):
     print("Distance calculs in progress ...")
     distance = {}
     for timeI in time:
+        print("For the range of time = "+str(timeI)+" ...")
         distance[timeI] = {}
         for residu in residueList:
             distance[timeI][residu] = []
@@ -110,8 +161,12 @@ def distanceClusters(slice,distances, residuesList):
 
 def exportClustersCSV(data_path,clusters):
     print("Export CSV file in progress ...")
-    csvFile = open(data_path+'\Results.csv','w')
-    headline = 'Frame_t;Cluster;Effectif\n'
+    timeResult = str(localtime().tm_year)+'-'+str(localtime().tm_mon)+'-'\
+                 +str(localtime().tm_mday)+'_'+str(localtime().tm_hour)\
+                 +'h'+str(localtime().tm_min)+'min'+str(localtime().tm_sec)
+    csvName = os.path.join(data_path,'Results_'+timeResult+'.csv')
+    csvFile = open(csvName,'w')
+    headline = 'Frame_t;Cluster;Effective\n'
     csvFile.write(headline)
     for timeI in sorted(clusters.keys()):
         for cluster in sorted(clusters[clusters.keys()[0]]):
@@ -119,7 +174,7 @@ def exportClustersCSV(data_path,clusters):
                           str(clusters[timeI][cluster])+'\n')
     csvFile.close()
     print("Export CSV file : ok")
-
+    return csvName
 
 
 
@@ -131,35 +186,26 @@ if __name__=="__main__":
                                                'through a system')
     parser.add_argument('pdb', type=str, help='PDB input file')
     parser.add_argument('xtc', type=str, help='XTC input file')
+    parser.add_argument('RscriptPath', type=str, help='Rscrip PATH')
     args=parser.parse_args()
 
-    workdir = os.getcwd()
+    pdbfile, xtcfile, rscriptpath = checkArgs(args.pdb, args.xtc,
+                                           args.RscriptPath)
+    resultdir = os.path.commonprefix([xtcfile, pdbfile])
     maindir = os.path.dirname(__file__)
-    print "workdlir = "+workdir
-    print "maindir = "+maindir
-
-    pdbfile = args.pdb
-    xtcfile = args.xtc
-    print "pdbfile = "+pdbfile
-    print "xtcfile = "+xtcfile
-
-# Path Paul :
-#data_path= 'D:\Cours\Master 2\Modelisation Bioinformatique\p3_p4_p5_p8'
-# Path Delphine :
-# data_path = 'C:\Users\Asus\Documents\Master 2 GPhy\Semestre 1\Modelisation'
-'''
-print("Load data in progress ...")
-trajectory = md.load(data_path+'\md_200ns_OK.xtc',
-                     top=data_path+'\start.pdb')
-print("Load data : ok")
-atomList = buildAtomList(trajectory)
-#refAtom = selectRefAtom(atomList)
-refAtom = 'P1'
-residueList = buildResiduesList(trajectory, refAtom)
-time = [1, 5, 10, 20, 30, 50, 70, 100, 200]
-distances = calculateDistances(time, trajectory, residueList, refAtom)
-#slice = selectSlice()
-slice = 0.1
-clusters = distanceClusters(slice, distances, residueList)
-exportClustersCSV(data_path,clusters)
-'''
+    scriptR = os.path.join(maindir,'ScriptR.R')
+    print("Load data in progress ...")
+    trajectory = md.load(xtcfile,top=pdbfile)
+    print("Load data : ok")
+    atomList = buildAtomList(trajectory)
+    refAtom = selectRefAtom(atomList)
+    #refAtom = 'P1'
+    residueList = buildResiduesList(trajectory, refAtom)
+    #time = [1, 5, 10, 20, 30, 50, 70, 100, 200]
+    time = selectTimes()
+    distances = calculateDistances(time, trajectory, residueList, refAtom)
+    slice = selectSlice()
+    #slice = 0.1
+    clusters = distanceClusters(slice, distances, residueList)
+    csvName = exportClustersCSV(resultdir,clusters)
+    call([rscriptpath,scriptR,csvName])
