@@ -373,7 +373,7 @@ if __name__ == "__main__":
     reference_atom = select_ref_atom(list_of_atoms)
     # - The list of all residues with this reference atom
     list_of_residues = build_residues_list(trajectory, reference_atom)
-    # - The range of time between two frame for calculations.
+    # - The range of time between two frames for calculations.
     time = select_times()
 
     # We calculate each distance for each residue and for each time range
@@ -389,4 +389,4 @@ if __name__ == "__main__":
     csv_name = export_clusters_csv(result_dir, clusters)
 
     # We execute the R script to analyze the results.
-    call([rscript_path, script_r, csv_name])
+    call([rscript_path, script_r, csv_name, reference_atom])
