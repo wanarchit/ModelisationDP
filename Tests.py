@@ -2,6 +2,7 @@ from Tkinter import Tk
 from Tkinter import *
 from tkFileDialog import askopenfilename
 import sys
+from subprocess import call
 
 
 def loadData():
@@ -20,13 +21,11 @@ def select_file(format):
     print filepath
 
 
+var = "Toto"
+var2 = "Tata"
+script = "D:\\Cours\\Master 2\\Modelisation " \
+          "Bioinformatique\\ModelisationDP\\testR.r"
+Rscript = "D:\\Logiciels\\R\\R-3.3.2\\bin\\Rscript.exe"
+toto = call([Rscript,script,var,var2], shell = False)
 
-
-
-print("Welcome in the program !\n")
-print("  - First, you will have to choose your data (PDB and XTC files")
-print("  - Next, you will have to choose a reference atom")
-print("  - Finally, you will have to choose a slice of distance to build the clusters\n")
-print("Press a key to continue")
-raw_input(" >> ")
 

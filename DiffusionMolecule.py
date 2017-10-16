@@ -1,5 +1,16 @@
 #!/usr/bin/env python
 
+#
+# Authors : Delphine Rousse, Paul Gand
+# Date of last modification : 2017-10-16
+#
+# This program allows calculating the traveled distances by a selected
+# reference atom for each selected range of time. The distances are
+# clustered by a slice of distance chosen by the user.
+#
+# Read the README.txt file for more information.
+#
+
 import mdtraj as md
 import os
 import sys
@@ -390,3 +401,5 @@ if __name__ == "__main__":
 
     # We execute the R script to analyze the results.
     call([rscript_path, script_r, csv_name, reference_atom])
+    print("\nThe program has finished, the results are saved in the "
+          "directory : "+result_dir)
